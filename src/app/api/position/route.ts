@@ -157,7 +157,10 @@ export async function GET(req: Request) {
     pnl,
     costPartial: basis.partial,
     transferCount: transfers.length,
-    trades: basis.trades.filter((t) => t.price !== null),
+    // Every transfer, including ones that could not be priced — the activity
+    // log should not silently drop rows. Consumers that need a price (chart
+    // markers) filter for themselves.
+    trades: basis.trades,
     tranches,
     ladder,
     fills: fills.rungs,

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { PositionRow } from '@/components/PositionRow'
 import { TokenPicker } from '@/components/TokenPicker'
 import { PriceChart } from '@/components/PriceChart'
+import { Activity } from '@/components/Activity'
 import { ExitPlanner } from '@/components/ExitPlanner'
 import { AlertToast, alertKey, type FiredAlert } from '@/components/AlertToast'
 import type { DiscoveredToken, PositionDetail, PricedRow, Wallet } from '@/lib/types'
@@ -671,8 +672,11 @@ export default function Dashboard() {
                     onClear={clearLadder}
                     onSetCost={setCost}
                   />
-                  <div style={{ height: 500 }}>
-                    <PriceChart row={r} detail={detail} />
+                  <div style={{ display: 'grid', gap: 14 }}>
+                    <div style={{ height: 500 }}>
+                      <PriceChart row={r} detail={detail} />
+                    </div>
+                    <Activity row={r} detail={detail} />
                   </div>
                 </div>
               )}
