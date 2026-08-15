@@ -1,0 +1,364 @@
+@import 'tailwindcss';
+
+/*
+ * EXIT PRICES — refined brutalism.
+ *
+ * The brand is the discipline: one typeface (mono, everywhere), zero radius,
+ * true black, hard rules, and colour reserved almost entirely for meaning.
+ * Weight, size and case are the only typographic variables. Oversized numerals
+ * are used once or twice per screen, never everywhere — quiet brutalism, not
+ * dense green-on-black.
+ *
+ * Palette is validated, not eyeballed (dataviz validator, --pairs all):
+ *   teal↔red   ΔE 12.1 deutan   — the conventional up/down pair is ΔE 2.2 and
+ *                                 unusable for red-green colourblind readers
+ *   worst pair ΔE 30.2 normal vision, all ≥3:1 contrast
+ * Signal orange was rejected: ΔE 13.0 against the red, below the normal-vision
+ * floor. Acid lime sits further from both status colours than they do from
+ * each other, so it can never be mistaken for up or down.
+ *
+ * The validator's lightness-band check fails by design here: it constrains
+ * adjacent categorical *series* fills, whereas these are UI status colours on
+ * black, deliberately at different lightnesses to build hierarchy.
+ *
+ * Status is never colour alone — every one carries a glyph and a sign.
+ */
+
+:root {
+  /* ground */
+  --black: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #111111;
+  --raised: #171717;
+
+  /* rules — brutalism leans on the line, so it gets three weights */
+  --rule: #262626;
+  --rule-mid: #3d3d3d;
+  --rule-hi: #5c5c5c;
+
+  /* ink */
+  --ink: #ffffff;
+  --ink-2: #8a8a8a;
+  --ink-3: #525252;
+
+  /* meaning */
+  --up: #14b8a6;
+  --down: #e5484d;
+  --accent: #d6ff2e;
+
+  --up-dim: #14b8a61a;
+  --down-dim: #e5484d1a;
+  --accent-dim: #d6ff2e1a;
+
+  --mono: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--black);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--black);
+}
+
+/* ------------------------------------------------------------------- type */
+
+/* Micro label: uppercase, widely tracked. The only "small" text in the app. */
+.lbl {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.lbl-hi {
+  color: var(--ink-2);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  font-weight: 500;
+}
+
+/* Oversized numeral. Used once or twice per screen — never routinely. */
+.hero {
+  font-size: clamp(44px, 6vw, 76px);
+  font-weight: 800;
+  letter-spacing: -0.055em;
+  line-height: 0.9;
+  font-variant-numeric: tabular-nums;
+}
+
+.h1 {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+}
+
+.h2 {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.dim {
+  color: var(--ink-2);
+}
+.dimmer {
+  color: var(--ink-3);
+}
+.up {
+  color: var(--up);
+}
+.down {
+  color: var(--down);
+}
+.acc {
+  color: var(--accent);
+}
+
+/* ------------------------------------------------------------------ frame */
+
+/* Panels are defined by their rules, not by fills or shadows. */
+.panel {
+  border: 1px solid var(--rule);
+  background: var(--surface);
+}
+
+.panel-head {
+  border-bottom: 1px solid var(--rule);
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 0;
+}
+
+/* ----------------------------------------------------------------- inputs */
+
+.input {
+  background: var(--black);
+  border: 1px solid var(--rule-mid);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 11px 13px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.12s;
+}
+.input:focus {
+  border-color: var(--accent);
+}
+.input::placeholder {
+  color: var(--ink-3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 11px;
+}
+
+.btn {
+  background: transparent;
+  border: 1px solid var(--rule-mid);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 9px 15px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.btn:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: var(--raised);
+}
+.btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn-solid {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--black);
+  font-weight: 700;
+}
+.btn-solid:hover:not(:disabled) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--black);
+}
+
+.btn-acc {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--black);
+  font-weight: 700;
+}
+.btn-acc:hover:not(:disabled) {
+  filter: brightness(1.1);
+  background: var(--accent);
+}
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 10px;
+}
+
+.btn[data-on='true'] {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--black);
+}
+
+/* Segmented control — hard-edged, divided by rules rather than gaps. */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--rule-mid);
+}
+.seg button {
+  border: 0;
+  border-right: 1px solid var(--rule-mid);
+  background: transparent;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 11px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.seg button:last-child {
+  border-right: 0;
+}
+.seg button:hover {
+  color: var(--ink);
+}
+.seg button[data-on='true'] {
+  background: var(--ink);
+  color: var(--black);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--rule-mid);
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+/* -------------------------------------------------------------------- row */
+
+.trow {
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+  transition: background 0.12s;
+  position: relative;
+}
+.trow:hover {
+  background: var(--surface-2);
+}
+.trow[data-selected='true'] {
+  background: var(--surface-2);
+}
+/* Selection is a hard bar, not a tint. */
+.trow[data-selected='true']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+}
+
+/* ----------------------------------------------------------------- motion */
+
+@keyframes wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.wipe {
+  animation: wipe 0.5s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+.blink {
+  animation: blink 1.4s steps(2, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ----------------------------------------------------------------- scroll */
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--black);
+  border-left: 1px solid var(--rule);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rule-mid);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--rule-hi);
+}
