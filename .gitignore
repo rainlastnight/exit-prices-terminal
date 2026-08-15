@@ -5,3 +5,4 @@ data/
 *.db-journal
 next-env.d.ts
 .DS_Store
+tsconfig.tsbuildinfo

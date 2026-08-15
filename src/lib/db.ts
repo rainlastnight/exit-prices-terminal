@@ -24,6 +24,13 @@ function addColumns(db: Database.Database) {
   const columns = new Set(
     (db.prepare('PRAGMA table_info(tracked)').all() as Array<{ name: string }>).map((c) => c.name),
   )
+
+  // Reconciled rung state, so views without transfer history (the row list)
+  // can show what actually happened instead of guessing from the fired flag.
+  const trancheCols = new Set(
+    (db.prepare('PRAGMA table_info(tranches)').all() as Array<{ name: string }>).map((c) => c.name),
+  )
+  if (!trancheCols.has('state')) db.exec('ALTER TABLE tranches ADD COLUMN state TEXT')
   const wanted: Array<[string, string]> = [
     ['circulating_supply', 'REAL'],
     ['supply_at', 'INTEGER'],

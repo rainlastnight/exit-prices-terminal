@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { PricedRow, PositionDetail } from '@/lib/types'
 import { validateCustom, type CustomRow, type TemplateId, type TrancheSpec } from '@/lib/templates'
 import { LadderRail } from './LadderRail'
@@ -18,6 +18,23 @@ interface Props {
 }
 
 const BLANK: CustomRow = { multiple: '', pct: '' }
+
+/** Marks the formula currently governing this position. */
+function InUsePill() {
+  return (
+    <span
+      className="tag"
+      style={{
+        background: 'var(--accent)',
+        color: 'var(--black)',
+        borderColor: 'var(--accent)',
+        fontWeight: 700,
+      }}
+    >
+      In use
+    </span>
+  )
+}
 
 function Stat({
   label,
@@ -69,6 +86,7 @@ export function ExitPlanner({ row, detail, onApply, onApplyCustom, onRebase, onC
     { multiple: '3', pct: '50' },
   ])
   const [showCustom, setShowCustom] = useState(false)
+  const [customOpened, setCustomOpened] = useState(false)
 
   const custom = useMemo(() => validateCustom(customRows), [customRows])
 
@@ -92,6 +110,20 @@ export function ExitPlanner({ row, detail, onApply, onApplyCustom, onRebase, onC
   const suggestion = detail?.suggestion
   const tranches = row.tranches ?? []
   const hasLadder = tranches.length > 0
+  /* Presets stamp their id on apply, so a live ladder with no template id is
+     necessarily one the custom builder produced. */
+  const customInUse = hasLadder && !row.template_id
+
+  /* Open the builder when the running ladder is a custom one, so the rungs
+     actually in force are visible. Once only — otherwise collapsing it would
+     immediately reopen, and it could never be closed. */
+  useEffect(() => {
+    if (customInUse && !customOpened) {
+      setShowCustom(true)
+      setCustomOpened(true)
+    }
+  }, [customInUse, customOpened])
+
 
   // The FDV you effectively bought in at — same supply x price as the live FDV,
   // evaluated at your average cost.
@@ -372,8 +404,7 @@ export function ExitPlanner({ row, detail, onApply, onApplyCustom, onRebase, onC
 
         <div>
           {(detail?.previews ?? []).map((p) => {
-            const active = row.template_id === p.id
-            const recommended = suggestion?.recommended === p.id
+            const inUse = hasLadder && row.template_id === p.id
             return (
               <button
                 key={p.id}
@@ -382,10 +413,10 @@ export function ExitPlanner({ row, detail, onApply, onApplyCustom, onRebase, onC
                   display: 'block',
                   width: '100%',
                   textAlign: 'left',
-                  background: active ? 'var(--surface-2)' : 'transparent',
+                  background: inUse ? 'var(--surface-2)' : 'transparent',
                   border: 0,
                   borderBottom: '1px solid var(--rule)',
-                  borderLeft: `3px solid ${active ? 'var(--accent)' : 'transparent'}`,
+                  borderLeft: `3px solid ${inUse ? 'var(--accent)' : 'transparent'}`,
                   padding: '14px 18px',
                   cursor: 'pointer',
                   color: 'inherit',
@@ -396,15 +427,7 @@ export function ExitPlanner({ row, detail, onApply, onApplyCustom, onRebase, onC
                   <span className="num" style={{ fontWeight: 700, fontSize: 15 }}>
                     {p.name}
                   </span>
-                  {recommended && (
-                    <span
-                      className="tag"
-                      style={{ background: 'var(--accent)', color: 'var(--black)', borderColor: 'var(--accent)', fontWeight: 700 }}
-                    >
-                      Suggested
-                    </span>
-                  )}
-                  {active && <span className="tag">Active</span>}
+                  {inUse && <InUsePill />}
                   <span className="num" style={{ marginLeft: 'auto', color: 'var(--up)', fontSize: 13 }}>
                     → {formatUsd(p.summary.totalTargetValue)}
                   </span>
@@ -426,8 +449,8 @@ export function ExitPlanner({ row, detail, onApply, onApplyCustom, onRebase, onC
           {/* ------------------------------------------------------ custom */}
           <div
             style={{
-              borderLeft: `3px solid ${showCustom ? 'var(--accent)' : 'transparent'}`,
-              background: showCustom ? 'var(--surface-2)' : 'transparent',
+              borderLeft: `3px solid ${customInUse || showCustom ? 'var(--accent)' : 'transparent'}`,
+              background: customInUse || showCustom ? 'var(--surface-2)' : 'transparent',
             }}
           >
             <button
@@ -449,6 +472,7 @@ export function ExitPlanner({ row, detail, onApply, onApplyCustom, onRebase, onC
               <span className="num" style={{ fontWeight: 700, fontSize: 15 }}>
                 Custom
               </span>
+              {customInUse && <InUsePill />}
               <span className="lbl" style={{ textTransform: 'none', letterSpacing: 0 }}>
                 Build your own ladder
               </span>

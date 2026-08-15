@@ -13,6 +13,14 @@
 export type RungState =
   /** Price has not reached this rung yet. */
   | 'pending'
+  /**
+   * Price reached it, but sales have not been checked yet.
+   *
+   * Never returned by `reconcileRungs` — it is the fallback for views that have
+   * the fired flag but not the transfer history, so they can show that the
+   * level was hit without claiming a sale was or was not made.
+   */
+  | 'reached'
   /** Price reached it and nothing was sold — the case worth shouting about. */
   | 'missed'
   /** Price reached it and some, but not all, of the tranche was sold. */

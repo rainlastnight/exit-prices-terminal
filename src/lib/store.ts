@@ -235,6 +235,8 @@ export interface TrancheRow {
   fired: number
   fired_at: number | null
   sort: number
+  /** Last reconciled state; null until the position has been opened. */
+  state: string | null
 }
 
 export function listTranches(trackedId: number): TrancheRow[] {
@@ -285,8 +287,19 @@ export function updateBalance(id: number, balanceRaw: string): void {
     .run(balanceRaw, Date.now(), id)
 }
 
+/** Persist reconciled rung states so the row list can render them too. */
+export function saveTrancheStates(states: Array<{ id: number; state: string }>): void {
+  const db = getDb()
+  const stmt = db.prepare('UPDATE tranches SET state = ? WHERE id = ?')
+  db.transaction(() => {
+    for (const s of states) stmt.run(s.state, s.id)
+  })()
+}
+
 export function latchTranche(id: number): void {
-  getDb().prepare('UPDATE tranches SET fired = 1, fired_at = ? WHERE id = ?').run(Date.now(), id)
+  getDb()
+    .prepare("UPDATE tranches SET fired = 1, fired_at = ?, state = 'reached' WHERE id = ?")
+    .run(Date.now(), id)
 }
 
 /* ------------------------------------------------------------- cost basis */

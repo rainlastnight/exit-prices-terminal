@@ -32,16 +32,23 @@ export interface RailProps {
   states?: Map<number, RungState>
 }
 
-/** A rung reached but not sold is the case worth shouting about. */
+/**
+ * Red is reserved for a rung that was reached and demonstrably not sold. A rung
+ * that merely fired — with no sales checked yet — is neutral, because claiming
+ * a miss without the transfer history would be a guess.
+ */
 const STATE_COLOR: Record<RungState, string> = {
   pending: 'var(--accent)',
+  reached: 'var(--ink)',
   missed: 'var(--down)',
-  partial: 'var(--accent)',
+  partial: 'var(--up)',
   sold: 'var(--up)',
 }
 
+/** Status never rests on colour alone. */
 const STATE_MARK: Record<RungState, string> = {
   pending: '',
+  reached: '•',
   missed: '!',
   partial: '~',
   sold: '✓',
@@ -107,7 +114,9 @@ export function LadderRail({
       multiple: t.multiple,
       pct: t.pct,
       fired: t.fired === 1,
-      state: states?.get(t.price) ?? (t.fired === 1 ? 'missed' : 'pending'),
+      state:
+        states?.get(t.price) ??
+        ((t.state as RungState | null) ?? (t.fired === 1 ? 'reached' : 'pending')),
       shift: clash ? (pos >= (pricePos ?? 0) ? 20 : -20) : 0,
     }
   })
@@ -283,7 +292,9 @@ export function LadderRail({
                     ? '~ PART SOLD'
                     : marks[hovered].state === 'missed'
                       ? '! HIT, NOT SOLD'
-                      : 'PENDING'}
+                      : marks[hovered].state === 'reached'
+                        ? '• HIT'
+                        : 'PENDING'}
               </span>
             </div>
 

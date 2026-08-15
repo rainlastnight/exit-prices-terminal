@@ -1,5 +1,12 @@
 import { NextResponse } from 'next/server'
-import { getTracked, listTranches, saveCostBasis, listWallets, recordPrice } from '@/lib/store'
+import {
+  getTracked,
+  listTranches,
+  saveCostBasis,
+  saveTrancheStates,
+  listWallets,
+  recordPrice,
+} from '@/lib/store'
 import { getTokenTransfers } from '@/lib/blockscout'
 import { getBestPool, getCandles } from '@/lib/geckoterminal'
 import { candlesForHistory, computeCostBasis, computePnl } from '@/lib/costbasis'
@@ -107,6 +114,18 @@ export async function GET(req: Request) {
     planBalance,
     sells,
   )
+
+  /* Persist what reconciliation found, so the collapsed row list can colour
+     rungs by the real outcome instead of falling back to the fired flag. */
+  if (tranches.length > 0) {
+    const byPrice = new Map(fills.rungs.map((f) => [f.price, f.state]))
+    const updates: Array<{ id: number; state: string }> = []
+    for (const t of tranches) {
+      const state = byPrice.get(t.price)
+      if (state) updates.push({ id: t.id, state })
+    }
+    saveTrancheStates(updates)
+  }
 
   // Rung prices are frozen at apply time, so a later buy that lifts the average
   // cost quietly makes "2x" no longer 2x of anything.
